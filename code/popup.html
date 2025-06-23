@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <h3>Clean AWS Console URL</h3>
   <button id="cleanBtn">Clean & Copy URL</button>
   <div id="status"></div>
+
+  <div class="history">
+    <h4>🕘 History</h4>
+    <ul id="historyList">
+      <!-- Filled dynamically -->
+    </ul>
+  </div>
+
   <script src="popup.js"></script>
 </body>
 </html>
