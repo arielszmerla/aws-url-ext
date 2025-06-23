@@ -32,15 +32,17 @@ A lightweight Chrome extension that cleans AWS Console URLs by removing account-
 
 ## 📁 File Structure
 ```
-aws-url-cleaner/
-├── manifest.json
-├── popup.html
-├── popup.js
-├── popup.css
-├── background.js
-└── icon.png  <-- Add your own 128x128 PNG icon
-```
 
+aws-url-ext/
+├── manifest.json                # Extension manifest file
+├── code/
+│   ├── popup.html               # Popup UI HTML
+│   ├── popup.js                 # Popup logic (JS)
+│   ├── popup.css                # Popup styles (CSS)
+│   └── background.js            # Background script
+└── assets/
+    └── imgs/
+        └── icon.png             # 128x128 extension icon
 ---
 
 ## 🧩 Example Input → Output
