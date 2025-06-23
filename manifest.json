@@ -3,7 +3,12 @@
   "name": "AWS Console URL Cleaner",
   "version": "0.1",
   "description": "Cleans AWS console URLs by removing account-specific prefixes.",
-  "permissions": ["tabs", "clipboardWrite", "activeTab", "scripting"],
+  "permissions": [
+    "tabs",
+    "clipboardWrite",
+    "activeTab",
+    "scripting"
+  ],
   "action": {
     "default_popup": "code/popup.html",
     "default_icon": {
@@ -16,6 +21,36 @@
     "128": "assets/imgs/icon.png"
   },
   "background": {
-    "service_worker": "code/background.js"
+    "service_worker": "code/background.js",
+    "type": "module"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "code/utils.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "code/content.js"
+      ]
+    }
+  ],
+  "commands": {
+    "clean-url": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+U",
+        "mac": "Command+Shift+U"
+      },
+      "description": "Clean and copy AWS URL"
+    }
   }
 }
