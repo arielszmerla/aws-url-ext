@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+
+permissions:
+  contents: write  # 👈 THIS IS REQUIRED TO PUSH TAGS
+
 jobs:
   bump-version:
     runs-on: ubuntu-latest
