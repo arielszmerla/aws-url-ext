@@ -7,6 +7,7 @@ A lightweight Chrome extension that cleans AWS Console URLs by removing account-
 ## 🔧 Features
 - Cleans AWS Console URLs by stripping out account-specific fragments
 - One-click button to clean and copy the current URL
+- Manual input field for pasting AWS Console URLs
 - Simple, clean UI
 
 ---
@@ -25,14 +26,14 @@ A lightweight Chrome extension that cleans AWS Console URLs by removing account-
 
 1. Visit any AWS Console page with an account-prefixed domain (e.g. `111222333344-xxxxxx.<my-fancy-region>.console.aws.amazon.com/...`)
 2. Click the extension icon in your toolbar
-3. Click **"Clean & Copy URL"**
-4. The cleaned URL (without the account-specific part) will be copied to your clipboard
+3. Click **"Clean & Copy URL"** to clean the current tab’s URL
+4. Or paste a URL into the input field and **"press Enter"**
+5. The cleaned URL (without the account-specific part) will be copied to your clipboard
 
 ---
 
 ## 📁 File Structure
 ```
-
 aws-url-ext/
 ├── manifest.json                # Extension manifest file
 ├── code/
@@ -43,6 +44,7 @@ aws-url-ext/
 └── assets/
     └── imgs/
         └── icon.png             # 128x128 extension icon
+```
 ---
 
 ## 🧩 Example Input → Output
