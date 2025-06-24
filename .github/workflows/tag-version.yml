@@ -55,6 +55,3 @@ jobs:
           bump: ${{ env.bump }}
           create-tag: true
           push-tag: true
-
-      - name: Show new tag
-        run: echo "New tag created: ${{ steps.bump_version.outputs.new_tag }}"
