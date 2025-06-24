@@ -1,4 +1,4 @@
-name: Tag on PR Merge
+name: Semantic Version Tagging
 
 on:
   push:
@@ -7,53 +7,54 @@ on:
   pull_request:
     branches:
       - main
+
 jobs:
   bump-version:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # fetch full history to get tags
+          fetch-depth: 0
 
-      - name: Get the branch that triggered the workflow
-        id: vars
+      - name: Get source branch name
+        id: get_branch
         run: |
-          echo "MERGE_BRANCH=$(git log -1 --pretty=%B | grep -oP '(feat|fix|rel)/[^\s]+')" >> $GITHUB_OUTPUT
-          echo "MERGE_BRANCH=${MERGE_BRANCH:-unknown}" >> $GITHUB_OUTPUT
-
-      - name: Determine version bump type
-        id: bump
-        run: |
-          if [[ "${{ steps.vars.outputs.MERGE_BRANCH }}" == feat/* ]]; then
-            echo "BUMP=minor" >> $GITHUB_ENV
-          elif [[ "${{ steps.vars.outputs.MERGE_BRANCH }}" == fix/* ]]; then
-            echo "BUMP=patch" >> $GITHUB_ENV
-          elif [[ "${{ steps.vars.outputs.MERGE_BRANCH }}" == rel/* ]]; then
-            echo "BUMP=major" >> $GITHUB_ENV
+          echo "PR_BRANCH=unknown" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "PR_BRANCH=${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
           else
-            echo "BUMP=patch" >> $GITHUB_ENV
+            # For push events, get the last commit message branch info fallback
+            BRANCH_NAME=$(git log -1 --pretty=%B | grep -oP '(feat|fix|rel)/[^\s]+')
+            echo "PR_BRANCH=${BRANCH_NAME:-unknown}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Show current tags
-        run: git tag
+      - name: Decide bump type based on branch prefix
+        id: bump_type
+        run: |
+          BRANCH=${{ steps.get_branch.outputs.PR_BRANCH }}
+          echo "Branch detected: $BRANCH"
+          if [[ "$BRANCH" == feat/* ]]; then
+            echo "bump=minor" >> $GITHUB_ENV
+          elif [[ "$BRANCH" == fix/* ]]; then
+            echo "bump=patch" >> $GITHUB_ENV
+          elif [[ "$BRANCH" == rel/* ]]; then
+            echo "bump=major" >> $GITHUB_ENV
+          else
+            echo "bump=patch" >> $GITHUB_ENV
+          fi
+          echo "Bump type set to $bump"
 
-      - name: Get current version
-        id: current_version
-        run: echo "CURRENT_VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
-
-      - name: Bump version using npm
+      - name: Bump version and create tag
         id: bump_version
-        run: |
-          echo "Bumping version with type $BUMP"
-          npm version $BUMP --no-git-tag-version > new_version.txt
-          NEW_VERSION=$(cat new_version.txt)
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
+        uses: phips28/gh-action-bump-version@v9
+        with:
+          tag-prefix: "v"
+          bump: ${{ env.bump }}
+          create-tag: true
+          push-tag: true
 
-      - name: Create git tag for new version
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git tag ${{ steps.bump_version.outputs.NEW_VERSION }}
-          git push origin ${{ steps.bump_version.outputs.NEW_VERSION }}
+      - name: Show new tag
+        run: echo "New tag created: ${{ steps.bump_version.outputs.new_tag }}"
