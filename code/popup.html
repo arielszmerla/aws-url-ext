@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="popup.css">
-</head>
-<body>
-  <h3>Clean/Copy AWS Console URL</h3>
-  <button id="cleanBtn">Clean & Copy URL</button>
-  <div id="status"></div>
-<script type="module" src="popup.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>AWS Console URL Cleaner</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h2>AWS Console URL Cleaner</h2>
+
+      <button id="cleanBtn">Clean Current Tab URL</button>
+
+      <div class="divider">OR</div>
+
+      <input type="text" id="urlInput" placeholder="Paste URL here" />
+
+      <div id="status"></div>
+    </div>
+
+    <script type="module" src="popup.js"></script>
+  </body>
 </html>
