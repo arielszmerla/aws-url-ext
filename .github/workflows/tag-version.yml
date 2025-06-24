@@ -11,8 +11,6 @@ on:
 jobs:
   bump-version:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -26,32 +24,51 @@ jobs:
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             echo "PR_BRANCH=${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
           else
-            # For push events, get the last commit message branch info fallback
             BRANCH_NAME=$(git log -1 --pretty=%B | grep -oP '(feat|fix|rel)/[^\s]+')
             echo "PR_BRANCH=${BRANCH_NAME:-unknown}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Decide bump type based on branch prefix
+      - name: Decide bump type
         id: bump_type
         run: |
           BRANCH=${{ steps.get_branch.outputs.PR_BRANCH }}
-          echo "Branch detected: $BRANCH"
           if [[ "$BRANCH" == feat/* ]]; then
-            echo "bump=minor" >> $GITHUB_ENV
+            echo "BUMP=minor" >> $GITHUB_ENV
           elif [[ "$BRANCH" == fix/* ]]; then
-            echo "bump=patch" >> $GITHUB_ENV
+            echo "BUMP=patch" >> $GITHUB_ENV
           elif [[ "$BRANCH" == rel/* ]]; then
-            echo "bump=major" >> $GITHUB_ENV
+            echo "BUMP=major" >> $GITHUB_ENV
           else
-            echo "bump=patch" >> $GITHUB_ENV
+            echo "BUMP=patch" >> $GITHUB_ENV
           fi
-          echo "Bump type set to $bump"
 
-      - name: Bump version and create tag
-        id: bump_version
-        uses:  'phips28/gh-action-bump-version@master'
-        with:
-          tag-prefix: "v"
-          bump: ${{ env.bump }}
-          create-tag: true
-          push-tag: true
+      - name: Get latest version
+        id: current_version
+        run: |
+          TAG=$(git tag --sort=-v:refname | head -n1)
+          echo "CURRENT_VERSION=${TAG:-v0.0.0}" >> $GITHUB_OUTPUT
+
+      - name: Bump version
+        id: bump
+        run: |
+          VERSION=${{ steps.current_version.outputs.CURRENT_VERSION }}
+          VERSION=${VERSION#v}  # Strip leading v
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          case "$BUMP" in
+            major)
+              ((MAJOR++)); MINOR=0; PATCH=0 ;;
+            minor)
+              ((MINOR++)); PATCH=0 ;;
+            patch)
+              ((PATCH++)) ;;
+          esac
+          NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Bumping version to $NEW_VERSION"
+
+      - name: Create and push tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag ${{ steps.bump.outputs.NEW_VERSION }}
+          git push origin ${{ steps.bump.outputs.NEW_VERSION }}
