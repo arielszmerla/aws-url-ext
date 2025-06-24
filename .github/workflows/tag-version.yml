@@ -81,5 +81,5 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git tag ${{ steps.bump.outputs.NEW_VERSION }}
+          git tag -a ${{ steps.bump.outputs.NEW_VERSION }} -m "Release ${{ steps.get_branch.outputs.PR_BRANCH }}"
           git push origin ${{ steps.bump.outputs.NEW_VERSION }}
