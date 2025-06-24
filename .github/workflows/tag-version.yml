@@ -5,10 +5,8 @@ on:
     branches:
       - main
 
-
-
 permissions:
-  contents: write  # 👈 THIS IS REQUIRED TO PUSH TAGS
+  contents: write # 👈 THIS IS REQUIRED TO PUSH TAGS
 
 jobs:
   bump-version:
@@ -53,31 +51,31 @@ jobs:
       - name: Bump version
         id: bump
         run: |
-            VERSION=${{ steps.current_version.outputs.CURRENT_VERSION }}
-            VERSION=${VERSION#v}  # Strip leading v
+          VERSION=${{ steps.current_version.outputs.CURRENT_VERSION }}
+          VERSION=${VERSION#v}  # Strip leading v
 
-            # Split version manually
-            MAJOR=$(echo "$VERSION" | cut -d. -f1)
-            MINOR=$(echo "$VERSION" | cut -d. -f2)
-            PATCH=$(echo "$VERSION" | cut -d. -f3)
+          # Split version manually
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          MINOR=$(echo "$VERSION" | cut -d. -f2)
+          PATCH=$(echo "$VERSION" | cut -d. -f3)
 
-            echo "Current: $MAJOR.$MINOR.$PATCH, bump type: $BUMP"
+          echo "Current: $MAJOR.$MINOR.$PATCH, bump type: $BUMP"
 
-            # Increment according to bump type
-            if [[ "$BUMP" == "major" ]]; then
-            MAJOR=$((MAJOR + 1))
-            MINOR=0
-            PATCH=0
-            elif [[ "$BUMP" == "minor" ]]; then
-            MINOR=$((MINOR + 1))
-            PATCH=0
-            else
-            PATCH=$((PATCH + 1))
-            fi
+          # Increment according to bump type
+          if [[ "$BUMP" == "major" ]]; then
+          MAJOR=$((MAJOR + 1))
+          MINOR=0
+          PATCH=0
+          elif [[ "$BUMP" == "minor" ]]; then
+          MINOR=$((MINOR + 1))
+          PATCH=0
+          else
+          PATCH=$((PATCH + 1))
+          fi
 
-            NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
-            echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
-            echo "Bumping version to $NEW_VERSION"
+          NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Bumping version to $NEW_VERSION"
 
       - name: Create and push tag
         run: |
